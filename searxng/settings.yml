@@ -1,7 +1,13 @@
 # see https://docs.searxng.org/admin/settings/settings.html#settings-use-default-settings
 use_default_settings: true
 general:
-  debug: true
+  # Was `true` (inherited from the upstream template). Debug raises the log level
+  # and surfaces tracebacks, which is not what you want on a publicly reachable
+  # instance. Nothing depends on it.
+  debug: false
+  # Surfaced at /config as `instance_name`, so it doubles as a cheap way to
+  # confirm a deploy actually reached the running container.
+  instance_name: "Claos Search"
 search:
   formats:
     - html
