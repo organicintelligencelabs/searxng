@@ -1,0 +1,16 @@
+version: 2
+updates:
+  # Watches the pinned SearXNG base image in the Dockerfile and opens a PR when
+  # upstream publishes a new tag. This exists because the instance ran three
+  # months behind on an unpinned `:latest` and a dead search engine went
+  # unnoticed the whole time. Reviewing a PR is the point; do not switch the
+  # Dockerfile back to `:latest`, which would leave Dependabot nothing to bump.
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore"
+    labels:
+      - "dependencies"
+      - "searxng-upgrade"

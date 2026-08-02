@@ -1,5 +1,27 @@
 # SearXNG Docker Template for Railway
 
+> **Fork note (organicintelligencelabs, 2026-08-02).** This is a fork of
+> [protemplate/searxng](https://github.com/protemplate/searxng), which Claos production
+> previously deployed from directly. That repo is a third party's and was last updated
+> 2025-06-09, yet it supplies `searxng/settings.yml`, whose `search.formats: [html, json]`
+> is the single line the Claos `web-search` tool depends on. A deletion or an edit there
+> would have broken production search silently. Forked so we own it.
+>
+> **Two deliberate divergences from upstream:**
+> 1. The base image is **pinned** rather than `:latest`. Running unpinned meant the
+>    instance sat on `2026.4.24` for three months without anyone knowing.
+> 2. **Dependabot** watches the pinned tag weekly (`.github/dependabot.yml`) so upgrades
+>    arrive as reviewable PRs.
+>
+> **After merging any base-image bump, verify against the deployed instance:**
+> ```sh
+> # 1. JSON API still answers (this is what web-search needs)
+> curl -s "$SEARXNG_BASE_URL/search?q=test&format=json" | head -c 80
+> # 2. Relevance did not regress (from the claos repo)
+> node scripts/eval/bench-web-search.mjs
+> ```
+> Background: `logs/backlog-searxng-web-search-2026-07-31.md` in the claos repo.
+
 [![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/6Qhjrg?referralCode=KKAfTD)
 
 A ready-to-deploy [SearXNG](https://github.com/searxng/searxng) metasearch engine template for [Railway](https://railway.app). Get your own privacy-focused search engine running in minutes! Perfect for AI agents, FlowiseAI, n8n workflows, and any application needing web search capabilities.

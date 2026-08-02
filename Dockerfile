@@ -1,4 +1,16 @@
-FROM docker.io/searxng/searxng:latest
+# Pinned deliberately. Upstream's `:latest` meant the running version was
+# whatever the last rebuild happened to pull, so this instance silently sat on
+# 2026.4.24 for three months. Google patched the user-agent trick that build's
+# `google` engine relied on in July 2026, and the engine then returned zero
+# results while raising no error, which read as "the web has nothing" rather
+# than "search is broken".
+#
+# Dependabot opens a PR when a new tag ships (see .github/dependabot.yml), so
+# upgrades are deliberate and reviewable, and a rollback is a revert.
+# After bumping, verify BOTH of these against the deployed instance:
+#   1. the JSON API still answers  (searxng/settings.yml -> search.formats)
+#   2. result relevance            (claos: node scripts/eval/bench-web-search.mjs)
+FROM docker.io/searxng/searxng:2026.8.1-8892414dc
 
 # Use the environment variables that Railway injects at build time (non-sensitive ones)
 ARG SEARXNG_BASE_URL
