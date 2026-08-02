@@ -1,10 +1,22 @@
 #!/bin/sh
 
-# Copy configuration files from backup if they don't exist (Railway volume mount scenario)
-if [ ! -f "/etc/searxng/settings.yml" ] && [ -f "/etc/searxng-backup/settings.yml" ]; then
-    echo "Volume mount detected, copying configuration files from backup..."
+# This repo is the source of truth for configuration. Sync on EVERY boot.
+#
+# This was previously guarded by `[ ! -f /etc/searxng/settings.yml ]`, so the copy
+# ran exactly once, on the first deploy into an empty volume. Every deploy after
+# that found the file present and skipped it, which meant the Railway volume
+# mounted at /etc/searxng permanently shadowed the image and no change to
+# searxng/settings.yml here could ever reach the container. Verified 2026-08-02:
+# the live config was still the one seeded on 2026-04-28, while deploys reported
+# success. Config looked version-controlled and was not.
+#
+# Do not reintroduce the existence check. If you need a value to differ per
+# environment, use an environment variable and substitute it below, the way
+# secret_key is handled, rather than hand-editing the volume.
+if [ -f "/etc/searxng-backup/settings.yml" ]; then
+    echo "Syncing configuration from image to /etc/searxng..."
     cp -r /etc/searxng-backup/* /etc/searxng/
-    echo "Configuration files copied successfully"
+    echo "Configuration synced"
 fi
 
 # Update the secret key from environment variable at runtime
